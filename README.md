@@ -1,0 +1,1 @@
+This program allows you to set up periodical notifications to spawn at your screen.

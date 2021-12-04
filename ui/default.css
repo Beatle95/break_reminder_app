@@ -1,0 +1,33 @@
+QLabel#lSettingsLabel {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+QWidget#fPopupWgt {
+    background-color: #203050;
+}
+
+QLabel#lPopupWgtMainText {
+    color: #f0f0f0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+QLabel#lPopupWgtTime {
+    color: #f0f0f0;
+    font-size: 20px;
+}
+
+QPushButton#popupButton {
+    background-color: #304060;
+    border-radius: 3px;
+    color: #f0f0f0;
+    font-weight: bold;
+}
+
+QPushButton#popupButton:hover {
+    background-color: #405070;
+    border-radius: 3px;
+    color: #f0f0f0;
+    font-weight: bold;
+}
