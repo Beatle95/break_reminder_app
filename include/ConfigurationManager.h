@@ -1,6 +1,7 @@
 #ifndef CONFIGURATION_MANAGER
 #define CONFIGURATION_MANAGER
 #include <fstream>
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 
@@ -21,8 +22,8 @@ public:
     inline int getMinute() { return minute_; }
     inline int getSecond() { return second_; }
 
-    void writeToFile(const std::string& pathToFile);
-    static ConfigurationManager readFromFile(const std::string& pathToFile);
+    void writeToFile(const std::filesystem::path& pathToFile);
+    static ConfigurationManager readFromFile(const std::filesystem::path& pathToFile);
 
 private:
     Mode mode_;

@@ -1,11 +1,12 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "Platform.h"
 
 static const int kTimeLeftCheckInterval = 250;
 static const char *kStart = "Start";
 static const char *kPause = "Pause";
 
-static const std::string kConfigFilePath = (std::filesystem::current_path() / "config.cfg").string();
+static const auto kConfigFileName = std::wstring(L"config.cfg");
 static const QString kAboutText = QString(
         "This software was developed by Tishchenko Vladislav\n"
         "Email: tishenko.vlad.apc@gmail.com\n"
@@ -37,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     trayIcon_->setContextMenu(trayIconMenu_.get());
 
     try {
-        auto cm = ConfigurationManager::readFromFile(kConfigFilePath);
+        auto cm = ConfigurationManager::readFromFile(getExecutableDirPath() / kConfigFileName);
         // if we managed to load configuration, then set it
         switch (cm.getMode()) {
         case Mode::Interactive:
@@ -48,14 +49,16 @@ MainWindow::MainWindow(QWidget *parent)
             break;
         default:
             // error occured we don't trust this config file anymore
-            std::filesystem::remove(kConfigFilePath);
+            std::filesystem::remove(getExecutableDirPath() / kConfigFileName);
             logError("Wrong mode in config file detected");
             throw std::runtime_error("");
             break;
         }
 
         ui->timeEdit->setTime(QTime(cm.getHour(), cm.getMinute(), cm.getSecond()));
-    } catch (std::runtime_error& err) {}
+    } catch (const std::runtime_error& err) {
+        logError(err.what());
+    }
     updateModeDescription();
 
     connect(showAction_.get(), SIGNAL(triggered(bool)), this, SLOT(slotShowActionTriggered(bool)));
@@ -88,7 +91,7 @@ MainWindow::~MainWindow()
         cm.setMode(Mode::TimeBased);
 
     try {
-        cm.writeToFile(kConfigFilePath);
+        cm.writeToFile(getExecutableDirPath() / kConfigFileName);
     } catch (std::runtime_error& err) {
         QMessageBox::critical(this, "Config write error", QString::fromStdString(err.what()));
     }
