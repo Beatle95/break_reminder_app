@@ -1,6 +1,5 @@
 /bin
 /build
-/include/version.h
 /.vscode
 *.autosave
 .DS_Store
