@@ -1,20 +1,14 @@
 #include "PlatformEvents.h"
 
-#ifdef _WIN32
-
-PlatformEvents::PlatformEvents() noexcept
-{
-}
-
-PlatformEvents::~PlatformEvents() noexcept
-{
-}
-
 PlatformEvents& PlatformEvents::instance() 
 {
     static PlatformEvents inst;
     return inst;
 }
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
 std::chrono::system_clock::duration PlatformEvents::getIdleTime() const
 {
@@ -26,6 +20,23 @@ std::chrono::system_clock::duration PlatformEvents::getIdleTime() const
     return std::chrono::milliseconds(GetTickCount() - plii.dwTime);
 }
 
-#endif
+#elif __APPLE__
+
+std::chrono::system_clock::duration PlatformEvents::getIdleTime() const
+{
+    // TODO: implementation for MAC OS
+    return std::chrono::milliseconds(0);
+}
+
+#elif __linux__
+
+std::chrono::system_clock::duration PlatformEvents::getIdleTime() const
+{
+    // TODO: implementation for Linux
+    return std::chrono::milliseconds(0);
+}
+
+#endif // _WIN32
+
 
 // TODO: do for other platforms

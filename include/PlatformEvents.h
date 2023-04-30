@@ -1,8 +1,5 @@
-#ifdef _WIN32
-#ifndef WINDOWS_HOOKS
-#define WINDOWS_HOOKS
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#ifndef __PLATFORMEVENTS_H__
+#define __PLATFORMEVENTS_H__
 #include <chrono>
 #include <stdexcept>
 
@@ -14,9 +11,8 @@ public:
 
     std::chrono::system_clock::duration getIdleTime() const;
 private:
-    PlatformEvents() noexcept;
-    ~PlatformEvents() noexcept;
+    PlatformEvents() noexcept = default;
+    ~PlatformEvents() noexcept = default;
 };
 
-#endif
-#endif
+#endif // __PLATFORMEVENTS_H__
