@@ -72,6 +72,9 @@ void BreakTimer::interactiveBackgroundWorker()
             case State::Paused:
                 if (idleTime < kIdleDurationToPause)
                     sleepOnly = false;
+
+            default:
+                break;
             }
         } catch (const std::runtime_error& err) {
             logError(err.what());
