@@ -1,5 +1,5 @@
 # Important! Use Ninja generator on Windows (because VS cretes Debug and Release subdirectories in EXECUTABLE_OUTPUT_PATH)
-cmake_minimum_required (VERSION 3.21)
+cmake_minimum_required (VERSION 3.20)
 set(PROJECT_NAME break_reminder)
 project(${PROJECT_NAME} VERSION 1.0.0)
 
