@@ -1,8 +1,5 @@
 #ifndef MAIN_WINDOW
 #define MAIN_WINDOW
-#include <atomic>
-#include <filesystem>
-#include <memory>
 #include <QAction>
 #include <QCloseEvent>
 #include <QMainWindow>
@@ -13,6 +10,9 @@
 #include <QTimer>
 #include <QString>
 #include <QSystemTrayIcon>
+#include <atomic>
+#include <filesystem>
+#include <memory>
 #include "BreakTimer.h"
 #include "ConfigurationManager.h"
 #include "PopupWidget.h"
