@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "Platform.h"
+#include "Functions.h"
 
 static const int kTimeLeftCheckInterval = 250;
 static const char *kStart = "Start";
