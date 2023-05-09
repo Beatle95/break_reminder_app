@@ -3,3 +3,4 @@
 /.vscode
 *.autosave
 .DS_Store
+/include/version.h
