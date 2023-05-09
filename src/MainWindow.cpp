@@ -37,6 +37,12 @@ MainWindow::MainWindow(QWidget *parent)
     trayIcon_ = new QSystemTrayIcon(QIcon("./resources/app_icon.png"), this);
     trayIcon_->setContextMenu(trayIconMenu_.get());
 
+#ifndef WIN32
+    // turn off interactive mode for non-windows builds
+    ui->rbInteractiveMode->setEnabled(false);
+    ui->rbInteractiveMode->setToolTip("Currently available only on Windows");
+#endif
+
     try {
         auto cm = ConfigurationManager::readFromFile(getExecutableDirPath() / kConfigFileName);
         // if we managed to load configuration, then set it
@@ -175,6 +181,10 @@ void MainWindow::slotTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::startStop(const bool isStarted) 
 {
+#ifndef WIN32
+    // platforms other then windows do not support interactive mode currently, so set simple mode instead
+    ui->rbTimeBasedMode->setChecked(true);
+#endif
     if (isStarted) {
         startAction_->setEnabled(false);
         stopAction_->setEnabled(true);  
