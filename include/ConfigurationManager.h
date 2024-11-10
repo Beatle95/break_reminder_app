@@ -1,9 +1,6 @@
 #ifndef CONFIGURATION_MANAGER
 #define CONFIGURATION_MANAGER
-#include <fstream>
 #include <filesystem>
-#include <stdexcept>
-#include <string>
 
 enum class Mode {
     TimeBased,

@@ -49,27 +49,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     std::filesystem::create_directories(getApplicationDataPath());
     const auto configPath = getApplicationDataPath() / kConfigFileName;
-    try {
-        auto cm = ConfigurationManager::readFromFile(configPath);
-        // if we managed to load configuration, then set it
-        switch (cm.getMode()) {
-        case Mode::Interactive:
-            ui->rbInteractiveMode->setChecked(true);
-            break;
-        case Mode::TimeBased:
-            ui->rbTimeBasedMode->setChecked(true);
-            break;
-        default:
-            // error occured we don't trust this config file anymore
+    if (std::filesystem::exists(configPath)) {
+        if (!readConfig(configPath)) {
+            // error occured - we don't trust this config file anymore
+            logInfo("Configuration will be removed");
             std::filesystem::remove(configPath);
-            logError("Wrong mode in config file detected");
-            throw std::runtime_error("");
-            break;
         }
-
-        ui->timeEdit->setTime(QTime(cm.getHour(), cm.getMinute(), cm.getSecond()));
-    } catch (const std::runtime_error& err) {
-        logError(err.what());
     }
     updateModeDescription();
 
@@ -285,4 +270,28 @@ void MainWindow::slotPopupWidgetResumed()
     if (!breakTimer_) 
         return;
     breakTimer_->restart();
+}
+
+bool MainWindow::readConfig(const std::filesystem::path& path) {
+    try {
+        auto cm = ConfigurationManager::readFromFile(path);
+        // if we managed to load configuration, then set it
+        switch (cm.getMode()) {
+        case Mode::Interactive:
+            ui->rbInteractiveMode->setChecked(true);
+            break;
+        case Mode::TimeBased:
+            ui->rbTimeBasedMode->setChecked(true);
+            break;
+        default:
+            logError("Wrong mode in config file detected");
+            return false;
+        }
+
+        ui->timeEdit->setTime(QTime(cm.getHour(), cm.getMinute(), cm.getSecond()));
+    } catch (const std::runtime_error& err) {
+        logError(err.what());
+        return false;
+    }
+    return true;
 }

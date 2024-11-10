@@ -63,6 +63,7 @@ private:
     void updateModeDescription();
     void startStop(const bool isStarted);
     void showHideToTray(const bool isShowing);
+    bool readConfig(const std::filesystem::path& path);
 };
 
 #endif

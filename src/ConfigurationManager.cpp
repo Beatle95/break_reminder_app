@@ -1,41 +1,57 @@
 #include "ConfigurationManager.h"
-#include <stdexcept>
+#include <optional>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include "Log.h"
+
+const char *kWrongConfigErrorText = "Wrong configuration contents";
+const char *kMode = "mode";
+const char *kHour = "hour";
+const char *kMin = "min";
+const char *kSec = "sec";
 
 void ConfigurationManager::writeToFile(const std::filesystem::path& pathToFile) 
 {
-    std::ofstream ofs;
-    ofs.open(pathToFile, std::ofstream::trunc);
-    if (!ofs.good())
-        throw std::runtime_error("Unable to open config file");
+    QJsonObject object;
+    object[kMode] = static_cast<int>(mode_);
+    object[kHour] = hour_;
+    object[kMin] = minute_;
+    object[kSec] = second_;
 
-    ofs << std::to_string(static_cast<int>(mode_)) << std::endl
-        << std::to_string(hour_) << std::endl
-        << std::to_string(minute_) << std::endl
-        << std::to_string(second_) << std::endl;
+    QFile configFile(QString::fromStdString(pathToFile.u8string()));
+    if (!configFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        throw std::runtime_error("Unable to open config file for writing");
+    }
+    configFile.write(QJsonDocument(object).toJson());
 }
 
 ConfigurationManager ConfigurationManager::readFromFile(const std::filesystem::path& pathToFile) 
 {
-    std::ifstream ifs;
-    ifs.open(pathToFile);
-    if (!ifs.good())
-        throw std::runtime_error("Unable to open config file, probably config is missing");
+    QFile configFile(QString::fromStdString(pathToFile.u8string()));
+    if (!configFile.open(QIODevice::ReadOnly)) {
+        throw std::runtime_error("Unable to open config file");
+    }
+    const auto jsonDocument = QJsonDocument::fromJson(configFile.readAll());
+    
+    if (!jsonDocument.isObject()) {
+        throw std::runtime_error(kWrongConfigErrorText);
+    }
 
     ConfigurationManager ret;
-    std::string line; 
+    const auto mainObj = jsonDocument.object();
 
-    try {
-        std::getline(ifs, line);
-        ret.mode_ = static_cast<Mode>(std::stoi(line));
-        std::getline(ifs, line);
-        ret.hour_ = std::stoi(line);
-        std::getline(ifs, line);
-        ret.minute_ = std::stoi(line);
-        std::getline(ifs, line);
-        ret.second_ = std::stoi(line);
-    } catch (const std::invalid_argument& err) {
-        throw std::runtime_error("Unable to load configuration file");
+    if (const auto val = mainObj[kMode].toVariant(); val.isValid()) {
+        ret.mode_ = static_cast<Mode>(val.toInt());
+    }
+    if (const auto val = mainObj[kHour].toVariant(); val.isValid()) {
+        ret.hour_ = val.toInt();
+    }
+    if (const auto val = mainObj[kMin].toVariant(); val.isValid()) {
+        ret.minute_ = val.toInt();
+    }
+    if (const auto val = mainObj[kSec].toVariant(); val.isValid()) {
+        ret.second_ = val.toInt();
     }
 
     return ret;
