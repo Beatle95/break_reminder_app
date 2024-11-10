@@ -1,9 +1,15 @@
 #include "Log.h"
+#include "Functions.h"
 
-static const char *kMainLogName = "main.log";
-static const char *kOldLogName  = "old.log";
-static const int kLogMaxSize    = 1024 * 1024 * 2;
-static std::mutex mutex;
+namespace {
+
+constexpr std::string_view kMainLogName("main.log");
+constexpr std::string_view kOldLogName("old.log");
+constexpr std::string_view kLogsDir("logs");
+const int kLogMaxSize    = 1024 * 1024 * 2;
+std::mutex mutex;
+
+}
 
 enum class LogMsgType {
     Info,
@@ -14,19 +20,24 @@ enum class LogMsgType {
 void log(const char *msg, LogMsgType type)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    if (std::filesystem::exists(kMainLogName)) {
+    const auto log_dir = getApplicationDataPath() / kLogsDir;
+    const auto main_log_path = log_dir / kMainLogName;
+
+    std::filesystem::create_directories(log_dir);
+    if (std::filesystem::exists(main_log_path)) {
+        const auto old_log_path = log_dir / kOldLogName;
         std::error_code err;
-        auto mainLogSize = std::filesystem::file_size(kMainLogName, err);
+        auto mainLogSize = std::filesystem::file_size(main_log_path, err);
         if (mainLogSize > kLogMaxSize) {
-            if (std::filesystem::exists(kOldLogName))
-                std::filesystem::remove(kOldLogName);
-            std::filesystem::copy_file(kMainLogName, kOldLogName);
-            std::filesystem::remove(kMainLogName);
+            if (std::filesystem::exists(old_log_path))
+                std::filesystem::remove(old_log_path);
+            std::filesystem::copy_file(main_log_path, old_log_path);
+            std::filesystem::remove(main_log_path);
         }
     }
 
     std::ofstream ofs;
-    ofs.open(kMainLogName, std::ofstream::ate | std::ofstream::app);
+    ofs.open(main_log_path, std::ofstream::ate | std::ofstream::app);
     auto ttime = std::time(0);
     auto localTime = std::localtime(&ttime);
     ofs << static_cast<int>(type) 

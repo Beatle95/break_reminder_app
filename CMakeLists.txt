@@ -18,6 +18,12 @@ set (CMAKE_AUTOUIC ON)
 
 set (CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/ui)
 
+if (APPLE)
+set (RESOURCES_PATH ${EXECUTABLE_OUTPUT_PATH}/${PROJECT_NAME}.app/Contents/MacOS)
+else ()
+set (RESOURCES_PATH ${EXECUTABLE_OUTPUT_PATH})
+endif ()
+
 find_package (
     Qt6 REQUIRED COMPONENTS
     Core
@@ -84,13 +90,13 @@ target_link_libraries (
 # copy resources
 file (
     COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources
-    DESTINATION ${EXECUTABLE_OUTPUT_PATH}/
+    DESTINATION ${RESOURCES_PATH}/
 )
 add_custom_command (
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/ui/default.css
-    ${EXECUTABLE_OUTPUT_PATH}/default.css
+    ${RESOURCES_PATH}/default.css
 )
 
 if (WIN32)

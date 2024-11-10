@@ -2,12 +2,14 @@
 #include "ui_MainWindow.h"
 #include "Functions.h"
 
-static const int kTimeLeftCheckInterval = 250;
-static const char *kStart = "Start";
-static const char *kPause = "Pause";
+namespace {
 
-static const auto kConfigFileName = std::wstring(L"config.cfg");
-static const QString kAboutText = QString(
+const int kTimeLeftCheckInterval = 250;
+const char *kStart = "Start";
+const char *kPause = "Pause";
+
+const auto kConfigFileName = std::wstring(L"config.cfg");
+const QString kAboutText = QString(
         "This software was developed by Tishchenko Vladislav\n"
         "Email: tishenko.vlad.apc@gmail.com\n"
         "Version: %1.%2.%3")
@@ -15,6 +17,7 @@ static const QString kAboutText = QString(
             .arg(PROJECT_VER_MINOR)
             .arg(PTOJECT_VER_PATCH);
 
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), 
@@ -22,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     isExiting_(false)
 {
     ui->setupUi(this);
+    QCoreApplication::setApplicationName(PROJECT_NAME);
     setWindowIcon(QIcon("./resources/app_icon.png"));
     setWindowTitle(tr("Break reminder"));
     setFixedSize(width(), height());
@@ -43,8 +47,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->rbInteractiveMode->setToolTip("Currently available only on Windows");
 #endif
 
+    std::filesystem::create_directories(getApplicationDataPath());
+    const auto config_path = getApplicationDataPath() / kConfigFileName;
     try {
-        auto cm = ConfigurationManager::readFromFile(getExecutableDirPath() / kConfigFileName);
+        auto cm = ConfigurationManager::readFromFile(config_path);
         // if we managed to load configuration, then set it
         switch (cm.getMode()) {
         case Mode::Interactive:
@@ -55,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
             break;
         default:
             // error occured we don't trust this config file anymore
-            std::filesystem::remove(getExecutableDirPath() / kConfigFileName);
+            std::filesystem::remove(config_path);
             logError("Wrong mode in config file detected");
             throw std::runtime_error("");
             break;
@@ -97,7 +103,7 @@ MainWindow::~MainWindow()
         cm.setMode(Mode::TimeBased);
 
     try {
-        cm.writeToFile(getExecutableDirPath() / kConfigFileName);
+        cm.writeToFile(getApplicationDataPath() / kConfigFileName);
     } catch (std::runtime_error& err) {
         QMessageBox::critical(this, "Config write error", QString::fromStdString(err.what()));
     }
