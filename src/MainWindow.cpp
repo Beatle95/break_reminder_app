@@ -48,9 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
 
     std::filesystem::create_directories(getApplicationDataPath());
-    const auto config_path = getApplicationDataPath() / kConfigFileName;
+    const auto configPath = getApplicationDataPath() / kConfigFileName;
     try {
-        auto cm = ConfigurationManager::readFromFile(config_path);
+        auto cm = ConfigurationManager::readFromFile(configPath);
         // if we managed to load configuration, then set it
         switch (cm.getMode()) {
         case Mode::Interactive:
@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
             break;
         default:
             // error occured we don't trust this config file anymore
-            std::filesystem::remove(config_path);
+            std::filesystem::remove(configPath);
             logError("Wrong mode in config file detected");
             throw std::runtime_error("");
             break;

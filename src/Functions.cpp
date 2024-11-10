@@ -11,7 +11,7 @@ std::filesystem::path getExecutableDirPath()
 
 std::filesystem::path getApplicationDataPath()
 {
-    auto app_data = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    assert(app_data.endsWith(PROJECT_NAME));
-    return std::filesystem::u8path(app_data.toStdString());
+    auto appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    assert(appData.endsWith(PROJECT_NAME));
+    return std::filesystem::u8path(appData.toStdString());
 }

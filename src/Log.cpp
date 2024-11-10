@@ -20,24 +20,24 @@ enum class LogMsgType {
 void log(const char *msg, LogMsgType type)
 {
     std::lock_guard<std::mutex> lock(mutex);
-    const auto log_dir = getApplicationDataPath() / kLogsDir;
-    const auto main_log_path = log_dir / kMainLogName;
+    const auto logDir = getApplicationDataPath() / kLogsDir;
+    const auto mainLogPath = logDir / kMainLogName;
 
-    std::filesystem::create_directories(log_dir);
-    if (std::filesystem::exists(main_log_path)) {
-        const auto old_log_path = log_dir / kOldLogName;
+    std::filesystem::create_directories(logDir);
+    if (std::filesystem::exists(mainLogPath)) {
+        const auto oldLogPath = logDir / kOldLogName;
         std::error_code err;
-        auto mainLogSize = std::filesystem::file_size(main_log_path, err);
+        auto mainLogSize = std::filesystem::file_size(mainLogPath, err);
         if (mainLogSize > kLogMaxSize) {
-            if (std::filesystem::exists(old_log_path))
-                std::filesystem::remove(old_log_path);
-            std::filesystem::copy_file(main_log_path, old_log_path);
-            std::filesystem::remove(main_log_path);
+            if (std::filesystem::exists(oldLogPath))
+                std::filesystem::remove(oldLogPath);
+            std::filesystem::copy_file(mainLogPath, oldLogPath);
+            std::filesystem::remove(mainLogPath);
         }
     }
 
     std::ofstream ofs;
-    ofs.open(main_log_path, std::ofstream::ate | std::ofstream::app);
+    ofs.open(mainLogPath, std::ofstream::ate | std::ofstream::app);
     auto ttime = std::time(0);
     auto localTime = std::localtime(&ttime);
     ofs << static_cast<int>(type) 
